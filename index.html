@@ -71,6 +71,12 @@
       // Autoupdate of input
       self.geojsonInput(JSON.stringify(self.geojsonLayer.toGeoJSON(), null, 2))
     });
+    self.map.on('draw:deleted', function(e){
+      e.layers.eachLayer(function(layer){
+        self.geojsonLayer.removeLayer(e.layer)
+      })
+      self.geojsonInput(JSON.stringify(self.geojsonLayer.toGeoJSON(), null, 2))
+    });
     // Checking input format
     self.checkGeojsonInput = function(geojsonInput){
       try{
@@ -98,7 +104,9 @@
             self.previousGeojsonLayer.push(layer)
           }
         })
-        self.map.fitBounds(geojson.getBounds())
+        try{
+          self.map.fitBounds(geojson.getBounds())
+        }catch(e){}
       }
     }
     // CodeMirror binding
