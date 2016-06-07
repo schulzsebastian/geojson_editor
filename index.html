@@ -93,7 +93,11 @@
         self.geojsonLayer.clearLayers()
         var geojson = L.geoJson(JSON.parse(geojsonInput), {
           onEachFeature: function(feature, layer){
-            if(feature.properties){
+            var i = 0;
+            for(var key in feature.properties){
+              i++
+            }
+            if(i>0){
               var popup = ''
               for(var key in feature.properties){
                 popup = popup + '<b>'+key+':</b> '+feature.properties[key]+'<br>'
