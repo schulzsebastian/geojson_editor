@@ -48,8 +48,6 @@
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {attribution: '&copy; <a href="http://osm.org/copyright" title="OpenStreetMap" target="_blank">OpenStreetMap</a>'})
     .addTo(self.map);
-    // Main functions
-    //self.geojsonInput = ko.observable('{\n\t"type":"Feature",\n\t"properties":{\n\t\t"name": "Point",\n\t\t"description":"Nice one!"\n\t},\n\t"geometry":{\n\t\t"type":"Point",\n\t\t"coordinates":[16.895835399627686,52.39503133316877]\n\t}\n}')
     self.geojsonInput = ko.observable(JSON.stringify({"type": "FeatureCollection","features": [{"type": "Feature","properties": {"name": "Point","description": "Nice one!"},"geometry": {"type": "Point","coordinates": [16.895824670791626,52.39501823939772]}}]}, null, 2))
     self.previousGeojsonLayer = ko.observableArray([]);
     self.geojsonLayer = new L.FeatureGroup();
@@ -63,10 +61,17 @@
             circle: false,
         }
     });
-    self.map.on('draw:edited', function(e){
+    self.map.addControl(self.drawControl);
+    self.map.on('draw:created', function(e){
+      // Autoupdate of input
+      self.geojsonLayer.addLayer(e.layer)
       self.geojsonInput(JSON.stringify(self.geojsonLayer.toGeoJSON(), null, 2))
     });
-    self.map.addControl(self.drawControl);
+    self.map.on('draw:edited', function(e){
+      // Autoupdate of input
+      self.geojsonInput(JSON.stringify(self.geojsonLayer.toGeoJSON(), null, 2))
+    });
+    // Checking input format
     self.checkGeojsonInput = function(geojsonInput){
       try{
         L.geoJson(JSON.parse(geojsonInput))
@@ -76,6 +81,7 @@
         return false
       }
     }
+    // Update map from input
     self.addGeojsonToLayer = function(geojsonInput){
       if(self.checkGeojsonInput(geojsonInput)){
         self.geojsonLayer.clearLayers()
